@@ -1,0 +1,15 @@
+{
+  "name": "exmpleplugin",
+  "version-string": "1.0.0.0",
+  "description": "exmpleplugin",
+  "homepage": "https://github.com/mlthelama/ExamplePlugin-SKSE64",
+  "license": "MIT",
+  "dependencies": [
+	"simpleini",
+    "boost-atomic",
+    "boost-stl-interfaces",
+    "span-lite",
+    "spdlog",
+    "commonlibsse-ng-flatrim"
+  ]
+}

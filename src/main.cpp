@@ -1,41 +1,93 @@
-﻿#include "common/IDebugLog.h"  // IDebugLog
-#include "skse64_common/skse_version.h"  // RUNTIME_VERSION
-#include "skse64/PluginAPI.h"  // SKSEInterface, PluginInfo
+﻿void init_logger() {
+    if (static bool initialized = false; !initialized) {
+        initialized = true;
+    } else {
+        return;
+    }
 
-#include <ShlObj.h>  // CSIDL_MYDOCUMENTS
+    try {
+#ifndef NDEBUG
+        auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
+#else
+        auto path = logger::log_directory();
+        if (!path) {
+            stl::report_and_fail("failed to get standard log path"sv);
+        }
 
-#include "version.h"  // VERSION_VERSTRING, VERSION_MAJOR
+        *path /= fmt::format("{}.log"sv, Version::PROJECT);
+        auto sink = make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+#endif
+        auto log = make_shared<spdlog::logger>("global log"s, move(sink));
+
+#ifndef NDEBUG
+        log->set_level(spdlog::level::trace);
+#else
+        log->set_level(spdlog::level::trace);
+        log->flush_on(spdlog::level::trace);
+#endif
+
+        set_default_logger(move(log));
+        spdlog::set_pattern("[%H:%M:%S.%f] %s(%#) [%^%l%$] %v"s);
+
+        logger::info("{} v{}"sv, Version::PROJECT, Version::NAME);
+        
+    } catch (const std::exception& e) { logger::critical("failed, cause {}"sv, e.what()); }
+}
+
+EXTERN_C [[maybe_unused]] __declspec(dllexport) bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse) {
+#ifndef NDEBUG
+    while (!IsDebuggerPresent()) {};
+#endif
+    REL::Module::reset();
 
 
-extern "C" {
-	bool SKSEPlugin_Query(const SKSEInterface* a_skse, PluginInfo* a_info)
-	{
-		gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Skyrim Special Edition\\SKSE\\MyFirstPlugin.log");
-		gLog.SetPrintLevel(IDebugLog::kLevel_DebugMessage);
-		gLog.SetLogLevel(IDebugLog::kLevel_DebugMessage);
+    init_logger();
 
-		_MESSAGE("MyFirstPlugin v%s", MYFP_VERSION_VERSTRING);
+    logger::info("{} loading"sv, Version::PROJECT);
 
-		a_info->infoVersion = PluginInfo::kInfoVersion;
-		a_info->name = "MyFirstPlugin";
-		a_info->version = MYFP_VERSION_MAJOR;
+    Init(a_skse);
 
-		if (a_skse->isEditor) {
-			_FATALERROR("[FATAL ERROR] Loaded in editor, marking as incompatible!\n");
-			return false;
-		} else if (a_skse->runtimeVersion != RUNTIME_VERSION_1_5_73) {
-			_FATALERROR("[FATAL ERROR] Unsupported runtime version %08X!\n", a_skse->runtimeVersion);
-			return false;
-		}
+    SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message* a_msg) {
+        switch (a_msg->type) {
+            case SKSE::MessagingInterface::kDataLoaded:
+                logger::info("Data loaded"sv);
 
-		return true;
-	}
+                logger::info("Done with adding"sv);
+                break;
+        }
+    });
+
+    logger::info("{} loaded"sv, Version::PROJECT);
+    return true;
+}
+
+EXTERN_C [[maybe_unused]] __declspec(dllexport) constinit auto SKSEPlugin_Version = []() noexcept {
+    SKSE::PluginVersionData v;
+    v.PluginName(Version::PROJECT.data());
+    v.AuthorName(Version::AUTHOR);
+    v.PluginVersion({ Version::MAJOR, Version::MINOR, Version::PATCH, Version::BETA });
+    v.UsesAddressLibrary(true);
+    v.CompatibleVersions({ SKSE::RUNTIME_SSE_LATEST_SE });
+    return v;
+}();
+
+EXTERN_C [[maybe_unused]] __declspec(dllexport) bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse,
+    SKSE::PluginInfo* pluginInfo) {
+    pluginInfo->name = SKSEPlugin_Version.pluginName;
+    pluginInfo->infoVersion = SKSE::PluginInfo::kVersion;
+    pluginInfo->version = SKSEPlugin_Version.pluginVersion;
 
 
-	bool SKSEPlugin_Load(const SKSEInterface* a_skse)
-	{
-		_MESSAGE("[MESSAGE] MyFirstPlugin loaded");
+    if (a_skse->IsEditor()) {
+        logger::critical("Loaded in editor, marking as incompatible"sv);
+        return false;
+    }
 
-		return true;
-	}
-};
+    const auto ver = a_skse->RuntimeVersion();
+    if (ver < SKSE::RUNTIME_SSE_1_5_39) {
+        logger::critical(FMT_STRING("Unsupported runtime version {}"), ver.string());
+        return false;
+    }
+
+    return true;
+}
