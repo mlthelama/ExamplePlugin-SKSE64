@@ -14,6 +14,9 @@ If you got here through Google, please see the [tutorial](https://github.com/Rya
   - for logging
 * [simpleini](https://github.com/brofield/simpleini) 
   - reading/writing to ini files
+  - other options for settings
+    - toml settings [tomlplusplus](https://github.com/marzer/tomlplusplus) or [autotoml](https://github.com/Ryan-rsm-McKenzie/AutoTOML)
+    - json settings [nlohmann-json](https://github.com/nlohmann/json) or [json2settings](https://github.com/Ryan-rsm-McKenzie/Json2Settings)
 * [vcpkg](https://github.com/microsoft/vcpkg) 
   - Add the environment variable `VCPKG_ROOT` with the value as the path to the folder containing vcpkg
 * [cmake](https://cmake.org) 
