@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 
+set(NAME "ExamplePlugin" CACHE STRING "")
+set(VERSION 1.0.0.0 CACHE STRING "")
+
 # ---- Options ----
 
 # ---- Cache build vars ----
@@ -33,8 +36,8 @@ set(BUILD_TESTS OFF)
 # ---- Project ----
 
 project(
-	ExamplePlugin
-	VERSION 1.0.0.0
+	${NAME} 
+	VERSION ${VERSION}
 	LANGUAGES CXX
 )
 
@@ -73,14 +76,14 @@ if (MSVC)
 	endif ()
 endif ()
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
 
 set(Boost_USE_STATIC_LIBS ON)
 
-
 # ---- Dependencies ----
-
 find_package(CommonLibSSE CONFIG REQUIRED)
 
 find_package(spdlog REQUIRED CONFIG)

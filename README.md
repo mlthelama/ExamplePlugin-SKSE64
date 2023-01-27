@@ -25,6 +25,8 @@ If you got here through Google, please see the [tutorial](https://github.com/Rya
 ## Developing
 * [Visual Studio](https://visualstudio.microsoft.com/)
 * [Rider](https://www.jetbrains.com/rider/)
+* [CLion](https://www.jetbrains.com/clion/)
+* [VS Code](https://code.visualstudio.com/)
 * update `.clang-format` file to your likeing for example from [here](https://zed0.co.uk/clang-format-configurator/)
 * set `cmake/Version.h.in` variable `AUTHOR` with your name
 * update version and name in `vcpkg.json` and `CMakeLists.txt` (under project) before building
@@ -38,7 +40,8 @@ cd ExamplePlugin-SKSE64
 
 cmake -B build -S .
 python scripts/cmake_generate.py 
-cmake --build build --config Release
+cmake --preset vs2022-windows
+cmake --build --preset vs2022-windows --config Release
 ```
 * `cmake -B build -S .` will generate the sln file you will open with an ide
 * `python scripts/cmake_generate.py` is used to generate `cmake/sourcelist.cmake` and includes all .h and .cpp files from `src/` and subdirectories

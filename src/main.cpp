@@ -36,11 +36,9 @@
 
 EXTERN_C [[maybe_unused]] __declspec(dllexport) bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse) {
 #ifndef NDEBUG
-    while (!IsDebuggerPresent()) {};
+    while (!IsDebuggerPresent()) {}
 #endif
-    REL::Module::reset();
-
-
+    
     init_logger();
 
     logger::info("{} loading"sv, Version::PROJECT);
