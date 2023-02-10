@@ -5,10 +5,6 @@
   "homepage": "https://github.com/mlthelama/ExamplePlugin-SKSE64",
   "license": "MIT",
   "dependencies": [
-    "boost-atomic",
-    "boost-stl-interfaces",
-    "span-lite",
-    "spdlog",
     "simpleini",
     "commonlibsse-ng"
   ]
