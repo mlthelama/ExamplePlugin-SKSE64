@@ -1,7 +1,7 @@
 {
-  "name": "exmpleplugin",
+  "name": "exampleplugin",
   "version-string": "1.0.0.0",
-  "description": "exmpleplugin",
+  "description": "exampleplugin",
   "homepage": "https://github.com/mlthelama/ExamplePlugin-SKSE64",
   "license": "MIT",
   "dependencies": [
